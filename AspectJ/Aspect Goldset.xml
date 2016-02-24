@@ -1,0 +1,188 @@
+<xml version="1.0" encoding="UTD-8"?>
+<bug_reports>
+	<bug_report id ="48990">
+		<title>Special case if(false) to not require a dynamic test</title>
+		<description>
+				FastMatch, the efficient pattern matching for pointcuts on the constant pool, is
+				currrently only implemented for the within pointcut. I am planning to provide
+				further oimplementations for other pointcuts by release 1.2.
+		</description>
+		<change_set>
+			<system_revision>1380262</system_revision>
+			<modified_methods>
+
+				<method id="IfPointCut.fastMatch">
+					<signature>public FuzzyBoolean fastMatch(FastMatchInfo type)</signature>
+					<file>src/org/aspectj/weaver/patterns/IfPointcut.java</file>
+				</method>
+				
+			</modified_methods>
+		</change_set>
+	</bug_report>
+	
+	
+
+
+	<bug_report id ="60015">
+		<title>NPE, Incorrect XLint:unmatchedSuperTypeInCall warning</title>
+		<description>
+			(This is an incomplete bug report -- sorry no time not to further isolate.)
+
+			Running AJDT 1.1.6, I get dozens of these warnings:
+
+			----------
+			Warning does not match because declaring type is java.lang.Object, if match
+			desired use target(st.ata.mc.exim.DatastoreReader)
+			[Xlint:unmatchedSuperTypeInCall] Blah.aj project/src/package/dir line 22
+			----------
+
+			for something like this code:
+		
+			----------
+			import pack.Interface;
+			...
+			pointcut dsrCall() : call(* Interface.*(..)); // WARNING HERE
+			...
+			----------
+
+			Each warning points to the pointcut (not the join point shadow).
+
+			NPE running from the command-line with the latest tree (will attach).
+		</description>
+		<change_set>
+			<system_revision></system_revision>
+			<modified_methods>
+
+				<method id="KindedPointCut.warnOnConfusingSig">
+					<signature>private void warnOnConfusingSig(Shadow shadow)</signature>
+					<file>src/org/aspectj/weaver/patterns/KindedPointcut.java</file>
+				</method>
+
+			</modified_methods>
+		</change_set>
+	</bug_report>
+	
+	
+
+		<bug_report id ="59895">
+		<title>NPE updating an aspect in incremental mode </title>
+		<description>
+				NPE when updating an aspect in incremental mode.
+				Find test case in incremental/full-rebuild.
+
+				AjBuildManager.java:208 finally clause runs after 
+				every iteration:
+
+					 ret = !handler.hasErrors();
+					 handler = null;
+
+				But at AjBuildManager.java:124, handler is only set if 
+				there is not a complete rebuild: 
+
+					if (!canIncremental && !batch) { // retry as batch?
+						return doBuild(buildConfig, baseHandler, true);
+					}
+					this.handler = ...
+
+				Since result is set by return doBuild..), could say
+
+					if (null != handler) {
+						ret = !handler.hasErrors();
+					}
+
+				(Seems to have been introduced in a month ago in 1.44.  Our test coverage of
+				incremental mode is awful.)
+		</description>
+		<change_set>
+			<system_revision>1409946</system_revision>
+			<modified_methods>
+
+				<method id="AjBuildManager.performBuild">
+					<signature>private boolean performBuild(AjBuildConfig buildConfig, IMessageHandler baseHandler, boolean isFullBuild)</signature>
+					<file>src/org/aspectj/ajdt/internal/core/builder/AjBuildManager.java</file>
+				</method>
+
+			</modified_methods>
+		</change_set>
+	</bug_report>
+	
+	
+
+	<bug_report id ="61411">
+		<title>AJDoc launch script on Windows can lose arguments </title>
+		<description>
+				Using AspectJ 1.2rc1 on Windows XP
+
+				This report highlights a problem that I've seen using ajdoc.bat on Windows but
+				the issue applies equally to the ajc.bat and ajbrowser.bat files as well.
+
+				The %ASPECTJ_HOME%\bin\ajdoc.bat file that users run to launch the ajdoc tool
+				imposes a limit of only 9 command line arguments that may be passed to the
+				class org.aspectj.tools.ajdoc.Main. In scenarios where there the -sourcepath,
+				-classpath, -d etc options are used it is easy for these to "eat up" the list
+				of arguments that are passed into the JVM. A long list of packages entered
+				at the end of the ajdoc.bat command can be truncated or possibly even ignored
+				(in which case an error message will be output telling the user that no
+				classes or packages have been specified).
+
+				In order to prevent a limit being put on the number of arguments passed to
+				the launched JVM, the invocation line needs to end with %* rather than the
+				%1 %2 %3 %4 %5 %6 %7 %8 %9 list it currently uses.
+
+				The proposed fix also *seems* (could somebody else confirm this ?) to sort
+				out another problem regarding the ajdoc.bat file which is this : long semi-
+				colon delimited paths supplied as the arguments for the -sourcepath and 
+				-classpath options seem to get split apart and passed into the JVM as separate 
+				arguments unless the entire path list is supplied inside quotes. This should
+				not be necessary. It seems that the batch file processor interprets the
+				semi-colons in a path list as delimiters between arguments. Consequently
+				each element in the path list is treated as a separate argument instead
+				of being part of one big string representing the sourcepath or classpath.
+		</description>
+		<change_set>
+			<system_revision>1367821</system_revision>
+			<modified_methods>
+
+				<method id="Main.onWindowsPro">
+					<signature>public boolean onWindowsPro()</signature>
+					<file>installer$/org/aspectj/Main.java</file>
+				</method>
+
+			</modified_methods>
+		</change_set>
+	</bug_report>
+	
+	
+
+	<bug_report id ="58520">
+		<title> ajdoc doesn't navigate to target details in some cases</title>
+		<description>
+				When a file is advised, javadoc uses the following naming convention for 
+				setting its "A NAME":
+
+				  convertCheckedException(java.lang.Throwable)
+
+				However, ajdoc uses the unqualified name for the argument, resuting in the 
+				follwing in-file anchor link:
+
+				html#convertCheckedException(Throwable) 
+
+				Which fails to navigate to the anchor within the file, although it does always 
+				go to the right file.
+		</description>
+		<change_set>
+			<system_revision></system_revision>
+			<modified_methods>
+
+				<method id="AjdocTests.testSuite">
+					<signature>public static testSuite()</signature>
+					<file>testsrc/org/aspectj/tools/ajdoc/AjdocTests.java</file>
+				</method>
+
+				
+				
+			</modified_methods>
+		</change_set>
+	</bug_report>
+
+</bug_reports>

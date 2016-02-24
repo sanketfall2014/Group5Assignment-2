@@ -1,0 +1,152 @@
+<>xml version="1.0" encoding="UTD-8"?>
+<bug_reports>
+	<bug_report id ="12468">
+		<title>Cab tasks uses ExecTask.setCommand() which is deprecated</title>
+		<description>
+		The Cab task uses ExecTask.setCommand() to generate the command line rather than
+		the executable attribute and nested arg elements.
+
+		This generates a warning everytime the task is run.
+		</description>
+		<change_set>
+			<system_revision>1380262</system_revision>
+			<modified_methods>
+
+				<method id="Cab.checkConfiguration">
+					<signature>protected void checkConfiguration() throws BuildException</signature>
+					<file>src/main/org/apache/tools/ant/taskdefs/optional/Cab.java</file>
+				</method>
+				
+				<method id="Cab.createCommand">
+					<signature>protected Commandline createCommand(File listFile)</signature>
+					<file>src/main/org/apache/tools/ant/taskdefs/optional/Cab.java</file>
+				</method>
+
+
+			</modified_methods>
+		</change_set>
+	</bug_report>
+	
+	
+
+
+	<bug_report id ="5092">
+		<title> jar task always rebuilds</title>
+		<description>
+			When not given a manifest, the jar task always rebuilds its jar files, whether
+			any files have changed or not.  This can be demonstrated by running the
+			following build.xml twice:
+
+			I will attach a patch that removes a check in isUpToDate(); I'm not sure what
+			this might break, because I'm not really clear on why it was put there initially.
+		</description>
+		<change_set>
+			<system_revision></system_revision>
+			<modified_methods>
+
+				<method id="Jar.getResourcesToAdd">
+					<signature>protected ArchiveState getResourcesToAdd(ResourceCollection[] rcs, File zipFile, boolean needsUpdate)</signature>
+					<file>ant-master/src.orig/main/org/apache/tools/ant/util/Jar.java</file>
+				</method>
+
+			</modified_methods>
+		</change_set>
+	</bug_report>
+	
+	
+
+		<bug_report id ="2522">
+		<title>Failure to accept -P option in cab task ([cab] -P option requires a parameter)</title>
+		<description>
+			Overview: When specifiying a -P option to the cab task using the options 
+			attribute I receive the following error:  [cab] -P option requires a parameter
+
+			The task looks like the following:
+
+
+
+			I modified Execute.java to output the command to the console.  The result is:
+
+			cabarc -r -p "-P classes/ -P tweb/" n E:\development\nsaglobal\webapp\communication.cab @C:\DOCUME~1\bwalker\LOCALS~1\Temp\ant-73378.tmp
+
+			If I execute this directly from the command prompt I will get the same error 
+			message.  However, if the quotes are removed from around the -P arguments the 
+			command will execute successfully.
+
+			So, I modified Commandline to no longer quote arguments with a space in them.  
+			Unfortunately, the same error is produced, [cab] -P option requires a parameter.
+
+			Any help is appreciated.
+		</description>
+		<change_set>
+			<system_revision>1409946</system_revision>
+			<modified_methods>
+
+				<method id="Cab.execute">
+					<signature>public void execute() throws BuildException</signature>
+					<file>src/main/org/apache/tools/ant/taskdefs/optional/Cab.java</file>
+				</method>
+
+			</modified_methods>
+		</change_set>
+	</bug_report>
+	
+	
+
+	<bug_report id ="2568">
+		<title>Patch to resolve a memory leak</title>
+		<description>
+				When using Ant repeatedly in a long-running process (such as in CruiseControl), 
+				memory leaks like a sieve. The major culprit to this is a reference to Project 
+				in the AntClassloader, which keeps the Project instance (and all the associated 
+				data) alive.
+
+				The supplied patch corrects this problem, along with a similar leak in 
+				IntrospectionHelper. The problem is corrected by making AntClassloader and 
+				IntrospectionHelper into BuildListeners, and having them clear out the relevant 
+				data upon a buildFinished event.
+		</description>
+		<change_set>
+			<system_revision>1367821</system_revision>
+			<modified_methods>
+
+				<method id=AntClassloader.AntClassloader">
+					<signature>public AntClassLoader(Project project, Path classpath)</signature>
+					<file>ant-master/src/main/org/apache/tools/ant/util/AntClassLoader.java</file>
+				</method>
+
+			</modified_methods>
+		</change_set>
+	</bug_report>
+	
+	
+
+	<bug_report id ="2652">
+		<title>Subclasses of Project can not load datatypes.</title>
+		<description>
+				If you subclass Project (as you need to do if you wish to bypass the Main 
+				class), you can not load datatypes properly. This is because the constructor 
+				check uses getClass(), which returns the subclass, and thus fails to find a 
+				suitable constructor.
+
+				By changing the constructor check to use Project.class, this problem is avoided.
+
+				This is not a crucial bug as the subclass can override the relevant method, but 
+				it would be nice if it was fixed.
+		</description>
+		<change_set>
+			<system_revision></system_revision>
+			<modified_methods>
+
+				<method id="Project.checkTaskClass">
+					<signature>public void checkTaskClass(final Class<?> taskClass) throws BuildException </signature>
+					<file>ant-master/src/main/org/apache/tools/ant/taskdefs/Project.java</file>
+				</method>
+
+				
+				
+			</modified_methods>
+		</change_set>
+	</bug_report>
+
+</bug_reports>
